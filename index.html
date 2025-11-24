@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Thiệp mời kỷ yếu — Vertical</title>
+<style>
+/* ---------- BACKGROUND NHẸ NHÀNG ---------- */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #ffeef5, #ffffff);
+    backdrop-filter: blur(12px); /* chút blur */
+    z-index: -1000;
+}
+
+:root{
+    --bg1: #ffeef5;
+    --bg2: #fff0f6;
+    --accent: #ff6fb3;
+    --muted: #6b4759;
+}
+html,body{
+    height:100%;
+    margin:0;
+    font-family:Inter, Poppins, system-ui;
+    background:linear-gradient(180deg,var(--bg1),var(--bg2));
+    overflow-x:hidden;
+}
+
+/* ---------- CENTER CARD ---------- */
+.page {
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:40px 18px;
+    background:linear-gradient(180deg,var(--bg1),var(--bg2));
+    position:relative;
+    overflow:hidden;
+}
+
+/* subtle floating background bubbles */
+.bubble{
+    position:absolute;
+    border-radius:50%;
+    opacity:0.05;
+    pointer-events:none;
+}
+
+/* CARD */
+.card {
+    width: 420px;
+    max-width:92vw;
+    background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,250,252,0.95));
+    border-radius:24px;
+    box-shadow: 0 18px 50px rgba(255,120,180,0.16);
+    padding:18px;
+    position:relative;
+    overflow:visible;
+    transform-origin:center;
+}
+
+/* Polaroid / image holder */
+.invite-frame{
+    width:100%;
+    border-radius:16px;
+    overflow:hidden;
+    background:linear-gradient(180deg,#fff,#fff6f9);
+    padding:8px;
+    box-shadow: 0 10px 30px rgba(150,80,120,0.06);
+    transition:transform .35s cubic-bezier(.2,.9,.2,1), box-shadow .35s;
+    position:relative;
+}
+.invite-frame:hover{ transform:translateY(-6px) scale(1.01); box-shadow:0 28px 60px rgba(150,80,120,0.12) }
+
+/* INVITE IMAGE */
+.invite-img{
+    display:block;
+    width:100%;
+    height:auto;
+    max-height:720px;
+    object-fit:cover;
+    border-radius:12px;
+    transition:transform .5s ease;
+    will-change:transform;
+    position:relative;
+    z-index:1;
+}
+.invite-frame:hover .invite-img { transform: scale(1.03) rotate(-0.6deg) }
+
+/* Image overlay decoration */
+.invite-overlay {
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    border-radius:12px;
+    box-shadow: inset 0 0 60px rgba(255,182,218,0.2);
+    z-index:2;
+}
+
+/* Sticker inside image */
+.img-sticker {
+    position:absolute;
+    background:linear-gradient(180deg,#fff,#fff7fb);
+    padding:4px 6px;
+    border-radius:10px;
+    font-size:12px;
+    font-weight:600;
+    color:var(--accent);
+    box-shadow:0 4px 12px rgba(200,80,140,0.08);
+    z-index:3;
+}
+.img-sticker.s1{ top:10px; left:12px }
+.img-sticker.s2{ bottom:10px; right:12px }
+
+/* Floating decorations */
+.decor {
+    position:absolute;
+    pointer-events:none;
+    mix-blend-mode:normal;
+}
+.decor.star { width:72px; opacity:.95; animation:float 6s ease-in-out infinite; }
+.decor.heart { width:60px; opacity:.95; animation:float 5s ease-in-out infinite; }
+.decor.cloud { width:120px; opacity:.85; animation:float 8s ease-in-out infinite; }
+.decor.balloon { width:64px; opacity:.9; animation:float 7s ease-in-out infinite; }
+.decor.spark { width:36px; opacity:.95; animation:float 4.5s ease-in-out infinite; }
+
+@keyframes float {
+    0% { transform: translateY(0) rotate(0deg) }
+    50% { transform: translateY(-12px) rotate(4deg) }
+    100% { transform: translateY(0) rotate(0deg) }
+}
+
+.parallax { transition: transform .12s linear; }
+
+/* Sticker outside image */
+.sticker {
+    position:absolute;
+    background:linear-gradient(180deg,#fff,#fff7fb);
+    padding:6px 8px;
+    border-radius:12px;
+    box-shadow:0 8px 22px rgba(200,80,140,0.08);
+    font-weight:600;
+    color:var(--accent);
+    font-size:13px;
+    z-index:5;
+}
+.sticker.s1{ left:12px; top:8px }
+.sticker.s2{ right:12px; bottom:10px }
+
+/* Music */
+.music {
+    position:fixed;
+    right:18px;
+    bottom:18px;
+    z-index:1200;
+    background:linear-gradient(90deg,#ff74b1,#ff9ac8);
+    color:white;
+    border-radius:999px;
+    padding:10px 14px;
+    box-shadow:0 10px 30px rgba(255,110,170,0.2);
+    display:flex;
+    gap:10px;
+    align-items:center;
+    cursor:pointer;
+    font-weight:700;
+}
+.music small{opacity:.95;font-weight:700}
+.music .bar{ width:120px; height:6px; background:rgba(255,255,255,0.25); border-radius:8px; overflow:hidden }
+.music .bar > i{ display:block; height:100%; background:linear-gradient(90deg,#fff,#ffd6eb); width:0% }
+
+/* Loader */
+.loader {
+    position:fixed;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(180deg,#fff,#fff0f6);
+    z-index:2000;
+    transition:opacity .45s ease, visibility .45s;
+}
+.loader.hidden { opacity:0; visibility:hidden; pointer-events:none }
+.loader-box{
+    width:180px;height:180px;border-radius:18px;background:linear-gradient(180deg,#fff,#fff5f9);
+    box-shadow:0 24px 60px rgba(240,120,180,0.12);display:flex;align-items:center;justify-content:center;flex-direction:column;
+    transform-origin:center;
+    animation:popIn .9s cubic-bezier(.2,.9,.2,1) forwards;
+}
+@keyframes popIn { 0%{transform:scale(.6);opacity:0}70%{transform:scale(1.03);opacity:1}100%{transform:scale(1);opacity:1} }
+.loader .spin {
+    width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background: radial-gradient(circle at 30% 30%, #ffb8d6, #ff7fbf);
+    box-shadow: 0 10px 28px rgba(255,100,160,0.18);
+    animation:rotate 1.4s linear infinite;
+}
+@keyframes rotate { to { transform: rotate(360deg) } }
+.loader .title{ margin-top:12px;color:var(--muted); font-weight:700 }
+
+/* Sparkle & hearts */
+.sparkle { position:absolute; width:8px; height:8px; background:white; border-radius:50%; pointer-events:none; animation:sparkleAnim 1s linear infinite; box-shadow:0 0 10px white; z-index:6; }
+@keyframes sparkleAnim {0%{transform:scale(0.5);opacity:1}100%{transform:scale(1.8);opacity:0}}
+.heart { position: fixed; bottom: 0; font-size: 18px; color: #ff6fa8; animation: flyUp 3s linear forwards; z-index:6;}
+@keyframes flyUp {0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-200px) scale(2);opacity:0}}
+
+#confetti { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:1000; }
+
+/* ---------- Floating text on background ---------- */
+.floating-text {
+  position: absolute;
+  font-size: 14px;
+  color: rgba(255,105,180,0.15);
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  will-change: transform;
+}
+
+@media(max-width:520px){
+    .card{ width:92vw; padding:14px; border-radius:16px }
+    .decor{ display:none }
+    .music .bar{ display:none }
+}
+</style>
+</head>
+<body>
+
+<style>
+/* ---------- Sticker sparkle ---------- */
+.sticker-spark {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: #ffe5f0;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.8;
+  animation: sparkAround 1.2s ease-in-out infinite;
+  z-index:4;
+}
+
+@keyframes sparkAround {
+  0% { transform: translate(0,0) scale(0.5); opacity:1; }
+  50% { transform: translate(calc(var(--dx)*1px), calc(var(--dy)*1px)) scale(1.2); opacity:0.5; }
+  100% { transform: translate(0,0) scale(0.5); opacity:1; }
+}
+</style>
+
+<script>
+/* ---------- Create sparkles around image stickers ---------- */
+function sparkleSticker(sticker){
+  for(let i=0;i<3;i++){
+    const s = document.createElement('div');
+    s.classList.add('sticker-spark');
+    const dx = Math.random()*20-10; // random movement X
+    const dy = Math.random()*20-10; // random movement Y
+    s.style.setProperty('--dx', dx);
+    s.style.setProperty('--dy', dy);
+    s.style.left = (sticker.offsetLeft + sticker.offsetWidth/2) + 'px';
+    s.style.top = (sticker.offsetTop + sticker.offsetHeight/2) + 'px';
+    sticker.parentElement.appendChild(s);
+    setTimeout(()=>s.remove(),1200);
+  }
+}
+
+// Select all stickers on image
+const imgStickers = document.querySelectorAll('.img-sticker');
+setInterval(()=>{ imgStickers.forEach(st => sparkleSticker(st)); },700);
+</script>
+
+<!-- Loader -->
+<div class="loader" id="loader">
+  <div class="loader-box" role="status" aria-live="polite">
+    <div class="spin" aria-hidden="true">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+        <path d="M3 6c0-1.1.9-2 2-2h12" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M21 6v11a2 2 0 0 1-2 2H6" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M7 8h10" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="title">Kỷ yếu — Chuẩn bị...</div>
+  </div>
+</div>
+
+<!-- Floating texts container -->
+<div id="floatingTexts"></div>
+
+<!-- Page -->
+<div class="page" id="page">
+  <div class="card parallax" id="card">
+
+    <!-- Decorative SVGs -->
+    <svg class="decor star tl" viewBox="0 0 64 64"><path d="M32 4l6.2 17.8L56 24l-14 10 4.8 17.6L32 40l-14.8 11.6L22 34 8 24l17.8-2.2z" fill="#ffd6ea" stroke="#ff7fbf"/></svg>
+    <svg class="decor heart tr" viewBox="0 0 64 64"><path d="M32 52s20-12.4 24-18c4-6-1.6-12-6-12-4.4 0-6.8 4-6.8 4S43 18 32 26 18 18 18 18s-2.4-4-6.8-4c-4.4 0-10 6-6 12 4 5.6 24 18 24 18z" fill="#ffdce8" stroke="#ff7fbf"/></svg>
+
+    <!-- Invite Frame -->
+    <div class="invite-frame" id="frame">
+      <img class="invite-img" id="inviteImg" src="kiyeu.jpg" alt="Thiệp mời kỷ yếu">
+      <div class="invite-overlay"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Music -->
+<div class="music" id="musicControl" role="button" aria-pressed="false" tabindex="0">
+  <div id="musicBtn">▶</div>
+  <small>Nhạc nền</small>
+  <div class="bar" aria-hidden="true"><i id="progress" style="width:0%"></i></div>
+</div>
+<audio id="bg" loop preload="auto" src="kiyeu1.mp3" autoplay></audio>
+<canvas id="confetti"></canvas>
+
+<script>
+/* ---------- Loader ---------- */
+const loader=document.getElementById('loader');
+window.addEventListener('load',()=>{ setTimeout(()=>loader.classList.add('hidden'),1200); });
+
+/* ---------- Parallax ---------- */
+const cardEl=document.getElementById('card');
+const pageEl=document.getElementById('page');
+pageEl.addEventListener('mousemove',e=>{
+  const rect=pageEl.getBoundingClientRect();
+  const dx=(e.clientX-rect.left-rect.width/2)/rect.width;
+  const dy=(e.clientY-rect.top-rect.height/2)/rect.height;
+  cardEl.style.transform=`translate3d(${dx*6}px, ${dy*6}px,0) rotateX(${-dy*3}deg) rotateY(${dx*6}deg)`;
+});
+pageEl.addEventListener('mouseleave',()=> cardEl.style.transform='');
+window.addEventListener('scroll',()=>{ const t=Math.min(24,window.scrollY*0.06); cardEl.style.transform+=` translateY(${t}px)`; });
+
+/* ---------- Music ---------- */
+const audio=document.getElementById('bg');
+const musicControl=document.getElementById('musicControl');
+const musicBtn=document.getElementById('musicBtn');
+const progress=document.getElementById('progress');
+let playing=true;
+function setPlaying(p){ playing=!!p; musicBtn.textContent=playing?'⏸':'▶'; musicControl.setAttribute('aria-pressed',String(playing)); if(playing) audio.play().catch(()=>{}); else audio.pause(); }
+musicControl.addEventListener('click',()=>setPlaying(!playing));
+musicControl.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); setPlaying(!playing); } });
+audio.addEventListener('timeupdate',()=>{ progress.style.width=(audio.currentTime/(audio.duration||1)*100)+'%'; });
+window.addEventListener('click',()=>{ if(!playing) audio.play().then(()=>setPlaying(true)).catch(()=>{}); },{once:true});
+window.addEventListener('touchstart',()=>{ if(!playing) audio.play().then(()=>setPlaying(true)).catch(()=>{}); },{once:true});
+document.addEventListener('keydown',e=>{ if(e.key==='m'||e.key==='M') setPlaying(!playing); });
+
+/* ---------- Image placeholder ---------- */
+const img=document.getElementById('inviteImg');
+img.onerror=()=>{ img.src='data:image/svg+xml;utf8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1600"><rect width="100%" height="100%" fill="#fff4fb"/><text x="50%" y="48%" font-size="40" text-anchor="middle" fill="#d05a8d" font-family="Poppins,Arial">Ảnh thiệp của bạn</text><text x="50%" y="56%" font-size="20" text-anchor="middle" fill="#c48aa8">Thay ""</text></svg>`); };
+
+/* ---------- Sparkle ---------- */
+const frame=document.getElementById("frame");
+function sparkleEffect(){ for(let i=0;i<4;i++){ const s=document.createElement("div"); s.classList.add("sparkle"); const angle=Math.random()*Math.PI*2; const radius=frame.offsetWidth/2+20; s.style.left=frame.offsetLeft+frame.offsetWidth/2+Math.cos(angle)*radius+"px"; s.style.top=frame.offsetTop+frame.offsetHeight/2+Math.sin(angle)*radius+"px"; document.body.appendChild(s); setTimeout(()=>s.remove(),1000); } }
+setInterval(sparkleEffect,700);
+
+/* ---------- Hearts ---------- */
+function createHeart(){ const heart=document.createElement("div"); heart.classList.add("heart"); heart.textContent="❤️"; heart.style.left=Math.random()*100+"vw"; document.body.appendChild(heart); setTimeout(()=>heart.remove(),3000); }
+setInterval(createHeart,800);
+
+/* ---------- Confetti ---------- */
+const confettiCanvas=document.getElementById("confetti");
+const ctx=confettiCanvas.getContext("2d");
+confettiCanvas.width=window.innerWidth;
+confettiCanvas.height=window.innerHeight;
+let confettis=[]; 
+function randomColor(){ const colors=["#ff6fa8","#ffd1dc","#ffe5f0","#ff99c8"]; return colors[Math.floor(Math.random()*colors.length)]; }
+function createConfetti(){ for(let i=0;i<5;i++){ confettis.push({x:Math.random()*confettiCanvas.width,y:-10,w:6,h:12,color:randomColor(),speed:Math.random()*3+2,angle:Math.random()*360}); } }
+function updateConfetti(){ ctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height); confettis.forEach((c,i)=>{ c.y+=c.speed; c.angle+=5; ctx.save(); ctx.translate(c.x,c.y); ctx.rotate(c.angle*Math.PI/180); ctx.fillStyle=c.color; ctx.fillRect(-c.w/2,-c.h/2,c.w,c.h); ctx.restore(); if(c.y>confettiCanvas.height) confettis.splice(i,1); }); }
+setInterval(createConfetti,300);
+(function loop(){ updateConfetti(); requestAnimationFrame(loop); })();
+
+function createFloatingText() {
+  const t = document.createElement("div");
+  t.className = "floating-text";
+  t.textContent = texts[Math.floor(Math.random() * texts.length)];
+  t.style.left = Math.random() * window.innerWidth + "px";
+  t.style.top = Math.random() * window.innerHeight + "px";
+  floatingContainer.appendChild(t);
+
+  const dx = (Math.random() - 0.5) * 200;
+  const dy = (Math.random() - 0.5) * 200;
+  const duration = 8000 + Math.random() * 4000;
+
+  t.animate([
+    { transform: 'translate(0,0)' },
+    { transform: `translate(${dx}px, ${dy}px)` }
+  ], {
+    duration: duration,
+    iterations: Infinity,
+    direction: 'alternate',
+    easing: 'ease-in-out'
+  });
+}
+
+for(let i=0; i<8; i++) createFloatingText();
+</script>
+</body>
+</html>
